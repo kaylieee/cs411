@@ -3,11 +3,18 @@ import Head from 'next/head'
 'use client'
 import { useState, useEffect } from 'react'
 
+let currentLat = 0
+let currentLong = 0
 export default function Home() {
+  useEffect(()=> {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      currentLat = position.coords.latitude
+      currentLong =  position.coords.longitude
+    });
+  })
   return (
     <div>
       <body>
-        <button className={'options'} onClick={getLocation}>getlocation</button>  
         <button className={'options'} onClick={setCatLib}>Library</button>    
         <button className={'options'} onClick={setCatPark}>Park</button> 
         <button className={'options'}>Cafe</button> 
@@ -32,13 +39,4 @@ const setCatLib = () =>{
 const setCatPark = () =>{
   category = "park"
   console.log(category)
-}
-
-function getLocation(){
-  useEffect(()=> {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-    });
-  })
 }
