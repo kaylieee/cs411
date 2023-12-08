@@ -6,7 +6,7 @@ function Map({ address }) {
   const geocoder = useMemo(() => new google.maps.Geocoder(), []);
   useEffect(() => {
       const loader = new Loader({
-        apiKey: 'AIzaSyC6W1lULgfx5HzMj_vl93v5sw885nggXIs',
+        apiKey: 'key',
         version: "weekly",
       });
   loader.load().then(() => {
