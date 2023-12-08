@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 let currentLat = 0
 let currentLong = 0
 export default function Home() {
+  const [address, setAddress] = useState('');
   useEffect(()=> {
     navigator.geolocation.getCurrentPosition(function(position) {
       currentLat = position.coords.latitude
@@ -21,8 +22,8 @@ export default function Home() {
         <button className={'options'}>Tourism</button> 
         <button className={'options'}>Entertainment</button> 
         <button className={'gen'}>Generate Places!</button>
-        <form method="POST" action="/api/hello" className={'form'}>
-          <input type="text" name="address" className={'input'}></input>
+        <form onSubmit={() => sendReq(address)} className={'form'}>
+          <input type="text" name="address" onChange = {e => {setAddress(e.currentTarget.value);}} className={'input'}></input>
           <button type="submit" name="submit">submit</button>
         </form>
         <div id='addressContainer'></div>
@@ -39,4 +40,21 @@ const setCatLib = () =>{
 const setCatPark = () =>{
   category = "park"
   console.log(category)
+}
+
+function sendReq(a: string){
+  fetch("http://localhost:3000/api/hello", {
+    method: "POST",
+    body: JSON.stringify({
+      lat: currentLat,
+      long: currentLong,
+      address: a,
+      category: category
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  })
+  .then((response) => response.json())
+  .then((json) => console.log(json));
 }
