@@ -16,11 +16,11 @@ export default function Home() {
   return (
     <div>
       <body>
-        <button className={'options'} onClick={setCatLib}>Library</button>    
-        <button className={'options'} onClick={setCatPark}>Park</button> 
-        <button className={'options'}>Cafe</button> 
-        <button className={'options'}>Tourism</button> 
-        <button className={'options'}>Entertainment</button> 
+        <button className={'options'} onClick={() => setCat("library")}>Library</button>    
+        <button className={'options'} onClick={() => setCat("park")}>Park</button> 
+        <button className={'options'} onClick={() => setCat("cafe")}>Cafe</button> 
+        <button className={'options'} onClick={() => setCat("tourism")}>Tourism</button> 
+        <button className={'options'} onClick={() => setCat("entertainment")}>Entertainment</button> 
         <button className={'gen'}>Generate Places!</button>
         <form onSubmit={() => sendReq(address)} className={'form'}>
           <input type="text" name="address" onChange = {e => {setAddress(e.currentTarget.value);}} className={'input'}></input>
@@ -33,12 +33,8 @@ export default function Home() {
 }
 
 let category=''
-const setCatLib = () =>{
-  category = "library"
-  console.log(category)
-}
-const setCatPark = () =>{
-  category = "park"
+const setCat = (cat: string) =>{
+  category = cat
   console.log(category)
 }
 
