@@ -17,10 +17,10 @@ export default async function handler(req, res) {
   try {
     console.log(req.body);
     const { lat, long, address, category } = req.body;
-  
-    const radarApiKey = 'apikey'; // Replace with your Radar API key
+    //geocode address entered in form 
+    const radarApiKey = ''; // Replace with your Radar API key
     const radarApiUrl = `https://api.radar.io/v1/geocode/forward?query=${encodeURIComponent(address)}`;
-  
+    //api call to radar
     const radarApiResponse = await fetch(radarApiUrl, {
       method: 'GET',
       headers: {
@@ -33,15 +33,16 @@ export default async function handler(req, res) {
         // Extract coordinates from the Radar API response
         const { latitude, longitude } = radarApiData.addresses[0];
   
-        // You can use latitude and longitude for further processing
         console.log('Coordinates:', { latitude, longitude });
+        //formatting the response to return a json with a list of places 
         const responseData = {
+          //calling getPlaces to generate places
           properties: getPlaces(lat,long,latitude,longitude,category),
         }
         
   
         // Respond with the coordinates or any other data you need
-        res.status(200).json(responseData);
+        res.status(200).json({ responseData });
       } catch (error) {
         console.error('Error calling Radar API:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -53,31 +54,35 @@ export default async function handler(req, res) {
   function getPlaces(lat,long,lat1,long1,cat){
     //const nu = prompt("How many places do you want to search for?:");
     //let num = parseInt(nu);
-    fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey=apikey')
+    fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey=')
     .then(resp => resp.json())
       .then((places) => {
+        //iterate through all of the places returned by geoapify
         places.features.map((place) => {
           console.log(place)
           if (place.properties !== undefined) {
+            //if the place is valid create variables for all of the properties for each place 
             const {
               name,
-              address_line1,
+              address_line2,
               city,
               state,
               country,
               lat,
               lon,
             } = place.properties;
+            //if the place hasn't been listed before and is not undefinded set the properties of the place into json format 
             if(arraybool(name)){
               const newPlace = {
                 name: name,
-                address_line1: address_line1,
+                address_line2: address_line2,
                 city: city,
                 state: state,
                 country: country,
                 lat: lat,
                 lon: lon,
               };
+              //add place to array of places
               array.push(newPlace);
             }
           }
@@ -85,31 +90,10 @@ export default async function handler(req, res) {
         });
         
       });
+      //return it and send it as a response 
       return array;
   }
-  function getAddressHTML(place) {
-    const {
-      name,
-      address_line1,
-      city,
-      state,
-      country,
-      lat,
-      lon,
-    } = place.properties;
-    if(arraybool(name)){
-      const newPlace = {
-        name: name,
-        address_line1: address_line1,
-        city: city,
-        state: state,
-        country: country,
-        lat: lat,
-        lon: lon,
-      };
-      array.push(newPlace);
-    }
-  }
+
 
   
   function arraybool(name){
