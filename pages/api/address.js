@@ -1,18 +1,16 @@
-import {radarKey, geoapifyKey} from './config.js'
+//import {radarKey, geoapifyKey} from './config.js'
 
-{var array = new Array();}
-{var track = new Array();}
-
-var dict = {
-  library: 'education.library',
-  entertainment: 'entertainment',
-  park: 'leisure.park',
-  cafe: 'commercial.food_and_drink'
+{
+  var array = new Array();
+}
+{
+  var track = new Array();
 }
 
 export default async function handler(req, res) {
   try {
     const { lat, long, address, category } = req.body;
+    const radarKey = '';
 
     //geocode address using radar API
     const radarApiUrl = `https://api.radar.io/v1/geocode/forward?query=${encodeURIComponent(address)}`;
@@ -26,9 +24,8 @@ export default async function handler(req, res) {
     const { latitude, longitude } = radarApiData.addresses[0];
     
     //call function to get places enroute
-    const cat = dict[category];
     const responseData = {
-      properties: getPlaces(lat,long,latitude,longitude,cat),
+      properties: getPlaces(lat,long,latitude,longitude,category),
     }
 
     //send response back
@@ -41,7 +38,7 @@ export default async function handler(req, res) {
 
 function getPlaces(lat,long,lat1,long1,cat){
   //send request to geoapify
-  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey='+geoapifyKey)
+  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey=')
   .then(resp => resp.json())
     .then((places) => {
       //iterate through all of the places returned by geoapify
@@ -76,6 +73,7 @@ function getPlaces(lat,long,lat1,long1,cat){
       });
     });
     //return it and send it as a response 
+    console.log(array);
     return array;
 }
 
@@ -93,3 +91,19 @@ function arraybool(name){
     return false;
   }
 }
+
+function parseCategory(c){
+  if(c == "library"){
+    return 'education.library';
+  }
+  if(c == "entertainment"){
+    return 'entertainment';
+  }
+  if(c == "park"){
+    return 'leisure.park'
+  }
+  if(c=="cafe"){
+    return 'commercial.food_and_drink';
+  }
+}
+
