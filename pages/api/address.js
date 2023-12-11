@@ -1,10 +1,13 @@
 import {radarKey, geoapifyKey} from './config.js'
 
-{
-  var array = new Array();
-}
-{
-  var track = new Array();
+{var array = new Array();}
+{var track = new Array();}
+
+var dict = {
+  library: 'education.library',
+  entertainment: 'entertainment',
+  park: 'leisure.park',
+  cafe: 'commercial.food_and_drink'
 }
 
 export default async function handler(req, res) {
@@ -23,7 +26,7 @@ export default async function handler(req, res) {
     const { latitude, longitude } = radarApiData.addresses[0];
     
     //call function to get places enroute
-    const cat = parseCategory(category);
+    const cat = dict[category];
     const responseData = {
       properties: getPlaces(lat,long,latitude,longitude,cat),
     }
@@ -90,19 +93,3 @@ function arraybool(name){
     return false;
   }
 }
-
-function parseCategory(c){
-  if(c == "library"){
-    return 'education.library';
-  }
-  if(c == "entertainment"){
-    return 'entertainment';
-  }
-  if(c == "park"){
-    return 'leisure.park'
-  }
-  if(c=="cafe"){
-    return 'commercial.food_and_drink';
-  }
-}
-
