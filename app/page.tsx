@@ -13,9 +13,18 @@ export default function Home() {
 
   })
   return (
+
     <div  id='container'>
       <body id="body">
-        <button className={'options'} onClick={() => LoginTime()}>Login</button>    
+        <div id="loginheader">
+          <div id='loginimageContainer'>
+            <Image src={"/logo.png"} alt="logo" height={100} width={200} />
+          </div>
+        </div>
+        <div id="loginbutton">
+          <button className={'loginoptions'} onClick={() => LoginTime()}>Login</button>
+          <h1 id="explore">EXPLORE YOUR NEIGHBORHOOD</h1>   
+        </div>
       </body>
     </div>
   )
