@@ -1,6 +1,4 @@
-
-import React from 'react';
-import Radar from 'radar-sdk-js';
+import {radarKey, geoapifyKey} from './config.js'
 
 {
   var array = new Array();
@@ -9,51 +7,38 @@ import Radar from 'radar-sdk-js';
   var track = new Array();
 }
 
-
-
-// pages/api/address.js
-
 export default async function handler(req, res) {
   try {
-    console.log(req.body);
     const { lat, long, address, category } = req.body;
-    //geocode address entered in form 
-    const radarApiKey = ''; // Replace with your Radar API key
+
+    //geocode address using radar API
     const radarApiUrl = `https://api.radar.io/v1/geocode/forward?query=${encodeURIComponent(address)}`;
-    
-    //api call to radar
     const radarApiResponse = await fetch(radarApiUrl, {
       method: 'GET',
       headers: {
-          'Authorization': radarApiKey,
+          'Authorization': radarKey,
         },
       });
+    const radarApiData = await radarApiResponse.json();
+    const { latitude, longitude } = radarApiData.addresses[0];
+    
+    //call function to get places enroute
+    const cat = parseCategory(category);
+    const responseData = {
+      properties: getPlaces(lat,long,latitude,longitude,cat),
+    }
 
-      const radarApiData = await radarApiResponse.json();
-      // Extract coordinates from the Radar API response
-      const { latitude, longitude } = radarApiData.addresses[0];
-      console.log('Coordinates:', { latitude, longitude });
-
-      const cat = parseCategory(category);
-      //formatting the response to return a json with a list of places 
-      const responseData = {
-        //calling getPlaces to generate places
-        properties: getPlaces(lat,long,latitude,longitude,cat),
-      }
-
-        // Respond with the coordinates or any other data you need
-      console.log(responseData)
-      res.status(200).json({ responseData });
-      } catch (error) {
-        console.error('Error calling Radar API:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+    //send response back
+    res.status(200).json({ responseData });
+    } catch (error) { //error handling
+      console.error('Error calling Radar API:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 
 function getPlaces(lat,long,lat1,long1,cat){
-  //const nu = prompt("How many places do you want to search for?:");
-  //let num = parseInt(nu);
-  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey=')
+  //send request to geoapify
+  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey='+geoapifyKey)
   .then(resp => resp.json())
     .then((places) => {
       //iterate through all of the places returned by geoapify
@@ -86,7 +71,6 @@ function getPlaces(lat,long,lat1,long1,cat){
         }
         
       });
-      
     });
     //return it and send it as a response 
     return array;
