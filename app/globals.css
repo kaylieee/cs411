@@ -25,10 +25,19 @@ html {
   padding-left: 2%;
   align-items: center;
   justify-content: center;
+  flex-direction: row;
 }
 
 #imageContainer{
   position: relative;
+}
+
+#welcome_name{
+  position: relative;
+}
+
+.welcome_name{
+  color:white;
 }
 
 #bottom{

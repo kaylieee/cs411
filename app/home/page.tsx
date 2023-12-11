@@ -4,6 +4,10 @@ import Head from 'next/head'
 'use client';
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+interface Params{
+  access_token: string;
+  expires_in: number;
+}
 
 let currentLat = 0
 let currentLong = 0
@@ -23,7 +27,9 @@ export default function Home() {
           <div id='imageContainer'>
             <Image src={"/logo.png"} alt="logo" height={100} width={200} />
           </div>
-      
+          <div id='welcome_name' className="welcome_name">
+            <h1 id='name'>Welcome: </h1>
+          </div>
         </div>
         <div id="bottom">
           <div id="leftContainer">
@@ -82,4 +88,44 @@ function handleData(places: Array<JSON>){
   }
   console.log(placeDisplay)
   document.getElementById('dest').innerHTML = placeDisplay
+}
+
+let params = {}
+let regex = (/([^&=]+)=([^&]*)/g)
+let m;
+while(m=regex.exec(location.href)){
+  params[decodeURIComponent(m[1])] = decodeURIComponent(m[2])
+}
+if(Object.keys(params).length > 0){
+  localStorage.setItem('authInfo', JSON.stringify(params))
+}
+
+window.history.pushState({}, document.title, "/" + "home")
+
+let infoString = localStorage.getItem('authInfo')
+let info: Params | null = infoString? JSON.parse(infoString) : null;
+
+if (info){
+  console.log(info)
+  console.log(info['access_token'])
+  console.log(info['expires_in'])
+
+  if (info['access_token']){
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {
+        Authorization: `Bearer ${info['access_token']}`,
+      },
+    })
+    .then((data) => data.json())
+    .then((userInfo) => {
+      console.log(userInfo)
+      const nameElement = document.getElementById('name')
+      if (nameElement) {
+        nameElement.innerHTML += userInfo.name
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching user info:', error)
+    })
+  }
 }
