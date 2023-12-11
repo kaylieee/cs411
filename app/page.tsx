@@ -4,81 +4,49 @@ import Head from 'next/head'
 'use client';
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+interface OAuthParams{
+  [key: string]: string;
+}
 
-let currentLat = 0
-let currentLong = 0
 export default function Home() {
-  const [address, setAddress] = useState('');
-  useEffect(()=> {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      currentLat = position.coords.latitude
-      currentLong =  position.coords.longitude
-      console.log(currentLat)
-    });
+  useEffect(() => {
+
   })
   return (
     <div  id='container'>
       <body id="body">
-        <div id="header">
-          <div id='imageContainer'>
-            <Image src={"/logo.png"} alt="logo" height={100} width={200} />
-          </div>
-        </div>
-        <div id="bottom">
-          <div id="leftContainer">
-            <button className={'options'} onClick={() => setCat("library")}>Library</button>    
-            <button className={'options'} onClick={() => setCat("park")}>Park</button> 
-            <button className={'options'} onClick={() => setCat("cafe")}>Cafe</button> 
-            <button className={'options'} onClick={() => setCat("tourism")}>Tourism</button> 
-            <button className={'options'} onClick={() => setCat("entertainment")}>Entertainment</button>
-          </div>
-          <div id="centerContainer">
-            <div id="mapcontainer"></div>
-            <form onSubmit={(e) => sendReq(e, address)} className={'form'}>
-              <input type="text" name="address" onChange = {(e) => {setAddress(e.currentTarget.value);}} className={'input'}></input>
-              <button type="submit" name="submit" id="submit">Find Places!</button>
-            </form>
-          </div>
-          <div id="rightContainer">
-            <div className={'destinations'} id='dest'>{placeDisplay}</div>
-          </div>
-        </div>
+        <button className={'options'} onClick={() => LoginTime()}>Login</button>    
       </body>
     </div>
   )
 }
 
-let category=''
-const setCat = (cat: string) =>{
-  category = cat
-  console.log(category)
-}
 
-export async function sendReq(e: Event, a: string){
-  placeDisplay = ''
-  e.preventDefault();
-  const res = await fetch("http://localhost:3000/api/address", {
-    method: "POST",
-    body: JSON.stringify({
-      lat: currentLat,
-      long: currentLong,
-      address: a,
-      category: category
-    }),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8"
+function LoginTime(){
+  let oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
+  let form = document.createElement('form')
+  form.setAttribute('method', 'GET')
+  form.setAttribute('action', oauth2Endpoint)
+
+  let params = {
+    "client_id":"682181883632-49j5fpmfa6rjblchgt5ieot348j27eer.apps.googleusercontent.com",
+    "redirect_uri":"http://localhost:3000/home",
+    "response_type":"token",
+    "scope":"https://www.googleapis.com/auth/userinfo.profile",
+    "include_granted_scopes": 'true',
+    'state': 'pass-through-value'
+  } as OAuthParams
+  for (var p in params){
+    if (params.hasOwnProperty(p)){
+      let input = document.createElement('input')
+      input.setAttribute('type', 'hidden')
+      input.setAttribute('name', p)
+      input.setAttribute('value', params[p])
+      form.appendChild(input)
     }
-  })
-  const data = await res.json()
-  const placesArray = data.responseData.properties
-  handleData(placesArray)
-}
-
-let placeDisplay = ''
-function handleData(places: Array<JSON>){
-  for(let i = 0; i < places.length; i++){
-    placeDisplay += '<div class=place><h1>'+places[i].name+'</h1>'+'<p>'+places[i].address_line2.split(',')[0]+'</p></div>'
+    
   }
-  console.log(placeDisplay)
-  document.getElementById('dest').innerHTML = placeDisplay
+  document.body.appendChild(form)
+  form.submit()
+  document.body.removeChild(form)
 }
