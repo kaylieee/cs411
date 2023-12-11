@@ -30,11 +30,11 @@ export default async function handler(req, res) {
 
     //send response back
     res.status(200).json({ responseData });
-    } catch (error) { //error handling
-      console.error('Error calling Radar API:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
+  } catch (error) { //error handling
+    console.error('Error calling Radar API:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
+}
 
 function getPlaces(lat,long,lat1,long1,cat){
   //send request to geoapify
