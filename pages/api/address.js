@@ -1,4 +1,4 @@
-//import {radarKey, geoapifyKey} from './config.js'
+import {radarKey, geoapifyKey} from './config.js'
 
 {
   var array = new Array();
@@ -10,7 +10,7 @@
 export default async function handler(req, res) {
   try {
     const { lat, long, address, category } = req.body;
-    const radarKey = '';
+    //const radarKey = '';
 
     //geocode address using radar API
     const radarApiUrl = `https://api.radar.io/v1/geocode/forward?query=${encodeURIComponent(address)}`;
@@ -22,6 +22,8 @@ export default async function handler(req, res) {
       });
     const radarApiData = await radarApiResponse.json();
     const { latitude, longitude } = radarApiData.addresses[0];
+    firstmarker(address,lat,long,latitude,longitude)
+
     
     //call function to get places enroute
     const responseData = {
@@ -35,10 +37,44 @@ export default async function handler(req, res) {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+function firstmarker(address,lat,long,latitude,longitude){
+  const radarApiUrl2 = "https://api.radar.io/v1/route/directions?locations="+lat+","+long+"|"+latitude+","+longitude+"&mode=foot&units=metric";
+  fetch(radarApiUrl2, {
+    method: 'GET',
+    headers: {
+        'Authorization': radarKey,
+      },
+    })
+    .then(resp => resp.json())
+      .then((value) => {
+        const { duration } = value.routes[0].duration.value
+        const { distance } = value.routes[0].distance.value
+        
+        const main ={
+          name: address,
+          latitude: latitude,
+          longitude: longitude,
+          duration: value.routes[0].duration.value,
+          distance: value.routes[0].distance.value,
+        
+        }
+        console.log(main.name)
+        if(arraybool(main.name)){
+          array.push(main)
+
+        }
+        
+    
+        
+        
+        })
+    
+
+    }
 
 function getPlaces(lat,long,lat1,long1,cat){
   //send request to geoapify
-  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=3&apiKey=')
+  fetch('https://api.geoapify.com/v2/places?categories='+cat+'&filter=rect:'+long+','+lat+','+long1+','+lat1+'&bias=proximity:'+long+','+lat+'&limit=5&apiKey='+geoapifyKey)
   .then(resp => resp.json())
     .then((places) => {
       //iterate through all of the places returned by geoapify
@@ -53,6 +89,7 @@ function getPlaces(lat,long,lat1,long1,cat){
             country,
             lat,
             lon,
+            distance, 
           } = place.properties;
           //if the place hasn't been listed before and is not undefinded set the properties of the place into json format 
           if(arraybool(name)){
@@ -64,6 +101,7 @@ function getPlaces(lat,long,lat1,long1,cat){
               country: country,
               lat: lat,
               lon: lon,
+              distance: distance,
             };
             //add place to array of places
             array.push(newPlace);
