@@ -31,10 +31,18 @@ const Map = ({currentLat, currentLong}) => {
                 essential: true,
             })
 
+            map.current.getLayer('markers') && map.current.removeLayer('markers')
+            map.current.getSource('markers') && map.current.removeSource('markers')
+
             const marker = new maptilersdk.Marker({
                 color: "#107AB0",
             }).setLngLat([currentLong, currentLat])
             .addTo(map.current)
+
+            new maptilersdk.Popup({offset: 25})
+                .setLngLat([currentLong, currentLat])
+                .setHTML('<h3>Current Location</h3>')
+                .addTo(map.current)
         }
     }, [currentLong, currentLat, mapLoaded])
 
