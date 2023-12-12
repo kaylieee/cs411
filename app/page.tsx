@@ -5,6 +5,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useRef, useState, useEffect, FormEvent } from 'react'
 import ReactDOM from 'react-dom'
+import Map from './map'
+import { processData } from './map'
+
+interface Params{
+  access_token: string;
+  expires_in: number;
+}
 
 
 
@@ -12,11 +19,13 @@ let currentLat = 0
 let currentLong = 0
 export default function Home() {
   const [address, setAddress] = useState('');
+  const [geoLocationAvailable, setGeoLocationAvailable] = useState(false)
   useEffect(()=> {
     navigator.geolocation.getCurrentPosition(function(position) {
       currentLat = position.coords.latitude
       currentLong =  position.coords.longitude
       console.log(currentLat)
+      setGeoLocationAvailable(true)
     });
   })
   //ReactDOM.render(map, document.getElementById("mapcontainer"));
@@ -40,6 +49,7 @@ export default function Home() {
           </div>
           <div id="centerContainer">
             <div id="mapcontainer"></div>
+            <Map currentLat={currentLat} currentLong={currentLong}/>
             <form onSubmit={(e) => sendReq(e, address)} className={'form'}>
               <input type="text" name="address" onChange = {(e) => {setAddress(e.currentTarget.value);}} className={'input'}></input>
               <button type="submit" name="submit" id="submit">Find Places!</button>
@@ -67,6 +77,7 @@ type Place = {
   country: string;
   lat: number;
   lon: number;
+  distance: number;
 };
 let placeDisplay = ''
 export async function sendReq(e: FormEvent<HTMLFormElement>, a: string){
@@ -86,9 +97,9 @@ export async function sendReq(e: FormEvent<HTMLFormElement>, a: string){
   })
   const data = await res.json()
   const placesArray = data.responseData.properties;
-  const placeElements = placesArray.map((place: Place, index: number) => (
+  const placeElements = placesArray.slice(1).map((place: Place, index: number) => (
     <div key={index} className="place">
-      <button className="bold-button" onClick={() => marker(place.lat,place.lon)}><span className="text">{place.name}</span></button>
+      <button className="bold-button" onClick={() => marker(place.name,place.lat,place.lon,place.distance,0)}><span className="text">{place.name}</span></button>
       <p>{place.address_line2}</p>
     </div>
   ));
@@ -96,44 +107,33 @@ export async function sendReq(e: FormEvent<HTMLFormElement>, a: string){
   //   const place = getAddressHTML(placesArray[i]);
   //   placeDisplay += ReactDOMServer.renderToStaticMarkup(place);
   // }
+  //const last = placesArray.length -1
+  marker("Your destination",placesArray[0].latitude,placesArray[0].longitude,placesArray[0].distance,placesArray[0].duration)
   ReactDOM.render(placeElements, document.getElementById('dest'));
+  console.log(placesArray[0])
+  
+
 
   
 }
-// export function Map() {
-//   const mapContainer = useRef(null);
-//   const map = useRef(null);
-//   const [lng] = useState(currentLong);
-//   const [lat] = useState(currentLat);
-//   const [zoom] = useState(14);
-//   const [API_KEY] = useState();
-
-//   useEffect(() => {
-//     if (map.current) return; // stops map from intializing more than once
-
-
-//     map.current = new maplibregl.Map({
-//       container: mapContainer.current,
-//       style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${API_KEY}`,
-//       center: [lng, lat],
-//       zoom: zoom
-//     });
-
-//   }, [API_KEY, lng, lat, zoom]);
-
-//   return (
-//     <div className="map-wrap">
-//       <div ref={mapContainer} className="map" />
-//     </div>
-//   );
-// }
-
-
-function marker(lat: number, long: number){
-  //placeDisplay = '<div class=place><h1>'+ places.name+'</h1>'+'<p>'+places.address_line2.split(',')[0]+'</p></div>'
-  //document.getElementById("dest")?.innerHTML(placeDisplay)
-  //console.log(placeDisplay)
-  console.log("hey")
-
-
+function marker(name: string,lat: number, long: number, distance: number, duration: number){
+  distance *= 0.000621371
+  if(duration===0){
+    duration = (distance/3) *60
+    duration = Math.ceil(duration)
 }
+  distance = Math.round(distance*100)/100
+
+  console.log(name,distance)
+  console.log("hey")
+  
+  processData(name,lat,long,distance,duration)
+  
+
+
+  
+}
+
+
+
+
