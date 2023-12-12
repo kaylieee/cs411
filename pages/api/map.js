@@ -39,7 +39,7 @@ const Map = ({currentLat, currentLong}) => {
             }).setLngLat([currentLong, currentLat])
             .addTo(map.current)
 
-            new maptilersdk.Popup({offset: 25})
+            const popup = new maptilersdk.Popup({offset: 25})
                 .setLngLat([currentLong, currentLat])
                 .setHTML('<h3>Current Location</h3>')
                 .addTo(map.current)
