@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import maplibreg1 from 'maplibre-gl'
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
@@ -14,6 +14,7 @@ import {maptilerKey} from '../pages/api/config.js'
 const Map = ({currentLat, currentLong}) => {
     mapContainer = useRef(null)
     map = useRef(null)
+    const [mapLoaded, setMapLoaded] = useState(false)
     maptilersdk.config.apiKey = maptilerKey
 
     useEffect(() =>{
@@ -25,8 +26,20 @@ const Map = ({currentLat, currentLong}) => {
             center: [currentLong, currentLat],
             zoom: 12,
             })
+        map.current.on('load', () => {
+            setMapLoaded(true)
+        })
 
     }, [currentLong, currentLat, 12])
+
+    useEffect(() => {
+        if (mapLoaded) {
+            map.current.flyTo({
+                center: [currentLong, currentLat],
+                essential: true
+            })
+        }
+    })
 
     return (
         <div className="map-wrap">
