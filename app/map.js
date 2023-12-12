@@ -3,7 +3,7 @@ import maplibreg1 from 'maplibre-gl'
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 
-import {maptilerKey} from './config.js'
+import {maptilerKey} from '../pages/api/config.js'
 {
     var mapContainer;
 }
