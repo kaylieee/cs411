@@ -4,6 +4,8 @@ import Head from 'next/head'
 'use client';
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import Map from '../../pages/api/map'
+
 interface Params{
   access_token: string;
   expires_in: number;
@@ -13,11 +15,13 @@ let currentLat = 0
 let currentLong = 0
 export default function Home() {
   const [address, setAddress] = useState('');
+  const [geoLocationAvailable, setGeoLocationAvailable] = useState(false)
   useEffect(()=> {
     navigator.geolocation.getCurrentPosition(function(position) {
       currentLat = position.coords.latitude
       currentLong =  position.coords.longitude
       console.log(currentLat)
+      setGeoLocationAvailable(true)
     });
   })
   return (
@@ -40,7 +44,7 @@ export default function Home() {
             <button className={'options'} onClick={() => setCat("entertainment")}>Entertainment</button>
           </div>
           <div id="centerContainer">
-            <div id="mapcontainer"></div>
+            <Map currentLat={currentLat} currentLong={currentLong}/>
             <form onSubmit={(e) => sendReq(e, address)} className={'form'}>
               <input type="text" name="address" onChange = {(e) => {setAddress(e.currentTarget.value);}} className={'input'}></input>
               <button type="submit" name="submit" id="submit">Find Places!</button>
